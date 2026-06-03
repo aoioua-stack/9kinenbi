@@ -192,6 +192,12 @@
     <div id="stage4" class="card hidden">
         <h1>ミニゲーム3：思い出パズル</h1>
         <p>ピースをスライドして、お写真を完成させてね！(16ピース)</p>
+        
+        <div style="margin-bottom: 15px; display: flex; flex-direction: column; align-items: center;">
+            <p style="font-size: 0.8rem; color: #888; margin-bottom: 5px;">【完成見本】</p>
+            <img src="002.jpg" alt="完成見本" style="width: 140px; height: 140px; border: 2px solid #ffb3c1; border-radius: 8px;">
+        </div>
+
         <div class="puzzle-container" id="puzzle-board"></div>
     </div>
 
@@ -285,7 +291,7 @@
                 setTimeout(() => miniHeart.remove(), 500);
             }, 10);
 
-            // 【修正】目標を5個に変更
+            //的目标を5個に変更
             if (caughtMails >= 5) {
                 clearInterval(mailInterval);
                 document.querySelectorAll('.mail').forEach(m => m.remove());
