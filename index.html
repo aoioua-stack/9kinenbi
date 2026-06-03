@@ -10,7 +10,7 @@
             background-color: #ffe6e6;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             height: 100vh;
             margin: 0;
             overflow: hidden;
@@ -19,26 +19,27 @@
 
         .card {
             background: white;
-            padding: 30px;
+            padding: 25px 20px;
             border-radius: 20px;
             box-shadow: 0 10px 20px rgba(0,0,0,0.1);
             text-align: center;
             max-width: 350px;
             width: 90%;
             transition: all 0.5s ease;
-            z-index: 5; /* 落ちてくるアイテムの裏に隠れないように */
+            z-index: 5;
+            margin-top: 20px;
         }
 
         h1 {
             color: #ff4d6d;
-            font-size: 1.5rem;
-            margin-bottom: 20px;
+            font-size: 1.4rem;
+            margin-bottom: 15px;
         }
 
         p {
             color: #4a4a4a;
-            line-height: 1.6;
-            font-size: 1rem;
+            line-height: 1.5;
+            font-size: 0.95rem;
         }
 
         .input-date {
@@ -66,25 +67,33 @@
             cursor: pointer;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             transition: transform 0.2s, background-color 0.2s;
-            margin-top: 20px;
+            margin-top: 15px;
+            text-decoration: none; /* リンク化時の下線消去 */
+            display: inline-block; /* サイズの適正化 */
         }
 
         .btn:active {
             transform: scale(0.95);
         }
 
-        /* 共通：浮遊・落下演出用スタイル */
+        /* お手紙を読むボタン専用の特別な色（少しゴージャスにゴールドピンク） */
+        .btn-letter {
+            background-color: #ff3366;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(255, 51, 102, 0.3);
+            margin-top: 5px;
+        }
+
         .falling-item {
             position: absolute;
             user-select: none;
             z-index: 2;
         }
 
-        /* ハート専用（下から上へ） */
         .heart {
             color: #ff4d6d;
             font-size: 28px;
-            animation: float Up 2.5s linear infinite;
+            animation: floatUp 2.5s linear infinite;
             opacity: 0;
             pointer-events: none;
         }
@@ -100,11 +109,11 @@
             }
         }
 
-        /* 郵便物専用（上から下へ） */
         .mail {
-            font-size: 35px;
+            font-size: 38px;
             cursor: pointer;
-            animation: fallDown 3s linear forwards;
+            animation: fallDown 5s linear forwards;
+            padding: 10px;
         }
 
         @keyframes fallDown {
@@ -123,10 +132,10 @@
         }
 
         .clear-text {
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             font-weight: bold;
             color: #ff1a43;
-            line-height: 1.8;
+            line-height: 1.6;
             animation: pop 0.5s ease-out;
         }
 
@@ -138,14 +147,12 @@
 </head>
 <body>
 
-    <!-- ステージ1: スタート画面 -->
     <div id="stage1" class="card">
         <h1>記念日ミニゲーム❤</h1>
         <p>いつもありがとう！<br>用意したゲームをクリアして、メッセージを受け取ってね！</p>
         <button class="btn" onclick="nextStage(1, 2)">ゲームを始める！</button>
     </div>
 
-    <!-- ステージ2: パスワード入力画面 -->
     <div id="stage2" class="card hidden">
         <h1>ミッション1：パスワード</h1>
         <p>私たちの「記念日」を入力してね！<br><span style="font-size: 0.8rem; color: #888;">（例：○月○日）</span></p>
@@ -154,19 +161,17 @@
         <button class="btn" onclick="checkPassword()">認証する</button>
     </div>
 
-    <!-- 新ステージ3: 郵便物キャッチゲーム -->
     <div id="stage3" class="card hidden">
         <h1>ミッション2：郵便屋さん</h1>
         <p>上から流れてくる郵便物（✉️）を、画面をタップして【10個】キャッチしてね！</p>
-        <p style="font-size: 1.2rem; font-weight: bold; color: #ff4d6d; margin: 15px 0;">
+        <p style="font-size: 1.2rem; font-weight: bold; color: #ff4d6d; margin: 10px 0;">
             集めた数: <span id="mail-count">0</span> / 10 個
         </p>
     </div>
 
-    <!-- ステージ4: 連打ゲーム -->
     <div id="stage4" class="card hidden">
         <h1>最終ミッション！</h1>
-        <p>ハートのメーターを満タンにして、ラブレターを開封しよう！</p>
+        <p>ハートのメーターを満慢にして、ラブレターを開封しよう！</p>
         <p style="font-size: 0.8rem; color: #999;">（ボタンを10回タップしてね）</p>
         <div style="background: #eee; border-radius: 10px; height: 20px; width: 100%; margin: 15px 0; overflow: hidden;">
             <div id="bar" style="background: #ff4d6d; height: 100%; width: 0%; transition: width 0.2s;"></div>
@@ -174,41 +179,38 @@
         <button id="heart-btn" class="btn" onclick="tapHeart()">❤ ハートを送る ❤</button>
     </div>
 
-    <!-- ステージ5: クリア画面 -->
     <div id="stage5" class="card hidden">
         <p class="clear-text">🎉 GAME CLEAR 🎉</p>
-        <hr style="border: 1px dashed #ff4d6d; margin: 20px 0;">
-        <p class="clear-text" style="font-size: 1.4rem;">
+        <hr style="border: 1px dashed #ff4d6d; margin: 15px 0;">
+        <p class="clear-text" style="font-size: 1.3rem; margin-bottom: 10px;">
             ９ヶ月間ありがとう！！！<br>これからもずっとよろしくね！！
         </p>
-        <p style="font-size: 3rem; margin: 10px 0;">💖</p>
+        <p style="font-size: 2.5rem; margin: 5px 0;">💖</p>
+        
+        <a href="001.HEIC" class="btn btn-letter">💌 お手紙を読む</a>
     </div>
 
     <script>
-        // ステージを切り替える関数
         function nextStage(current, next) {
             document.getElementById(`stage${current}`).classList.add('hidden');
             document.getElementById(`stage${next}`).classList.remove('hidden');
         }
 
-        // パスワードチェック
         function checkPassword() {
             const input = document.getElementById('date-input').value.trim();
             if (input === '8月31日' || input === '８月３１日') {
                 nextStage(2, 3);
-                startMailGame(); // 郵便ゲーム開始
+                startMailGame();
             } else {
                 alert('あれれ？もう一回考えてみてね！😘');
             }
         }
 
-        // --- 新要素：郵便物キャッチゲームの処理 ---
         let caughtMails = 0;
         let mailInterval;
 
         function startMailGame() {
-            // 0.6秒ごとに郵便物を降らせる
-            mailInterval = setInterval(createMail, 600);
+            mailInterval = setInterval(createMail, 500);
         }
 
         function createMail() {
@@ -217,35 +219,36 @@
             const mail = document.createElement('div');
             mail.classList.add('falling-item', 'mail');
             mail.innerText = '✉️';
-            mail.style.left = Math.random() * 90 + 'vw';
-            // 落ちる速度をランダムにしてゲーム性を出す
-            mail.style.animationDuration = Math.random() * 1.5 + 2 + 's'; 
+            mail.style.left = Math.random() * 85 + 'vw';
+            mail.style.animationDuration = Math.random() * 1.5 + 4.5 + 's'; 
 
-            // タップ・クリックされた時の処理
-            mail.addEventListener('touchstart', catchMail); // スマホ用
-            mail.addEventListener('mousedown', catchMail);  // PC用
+            mail.addEventListener('touchstart', catchMail);
+            mail.addEventListener('mousedown', catchMail);
 
             document.body.appendChild(mail);
 
-            // 画面外に消えたら削除
-            setTimeout(() => { mail.remove(); }, 3000);
+            setTimeout(() => { mail.remove(); }, 6000);
         }
 
         function catchMail(e) {
+            e.preventDefault();
             const mail = e.target;
-            mail.remove(); // キャッチしたら消す
+            mail.remove();
             
             caughtMails++;
             document.getElementById('mail-count').innerText = caughtMails;
 
-            // キャッチしたときにもちいさなハートが出る可愛い演出
+            let touchX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+            let touchY = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
+
             const miniHeart = document.createElement('div');
             miniHeart.innerText = '✨';
             miniHeart.style.position = 'absolute';
-            miniHeart.style.left = e.clientX + 'px';
-            miniHeart.style.top = e.clientY + 'px';
+            miniHeart.style.left = touchX + 'px';
+            miniHeart.style.top = touchY + 'px';
             miniHeart.style.fontSize = '20px';
             miniHeart.style.transition = 'all 0.5s';
+            miniHeart.style.zIndex = '10';
             document.body.appendChild(miniHeart);
             setTimeout(() => {
                 miniHeart.style.transform = 'translateY(-20px)';
@@ -253,10 +256,8 @@
                 setTimeout(() => miniHeart.remove(), 500);
             }, 10);
 
-            // 10個集めたら次のステージへ
             if (caughtMails >= 10) {
                 clearInterval(mailInterval);
-                // 画面に残っている手紙を綺麗にお掃除
                 document.querySelectorAll('.mail').forEach(m => m.remove());
                 setTimeout(() => {
                     nextStage(3, 4);
@@ -264,8 +265,6 @@
             }
         }
 
-
-        // --- 連打ゲームの処理 ---
         let count = 0;
         let isFinished = false;
 
@@ -282,31 +281,24 @@
                 isFinished = true;
                 document.getElementById('heart-btn').disabled = true;
 
-                // 【演出大幅強化】ハートをさらに超大量（80個）に発生させる！
                 for (let i = 0; i < 80; i++) {
-                    // 少しずつ時間をずらして一気に画面を埋め尽くす
                     setTimeout(createHeart, Math.random() * 800); 
                 }
 
-                // 2.5秒後に次のクリア画面へ移行
                 setTimeout(() => {
                     nextStage(4, 5);
-                    // クリア後のハッピーアワー（継続的なハート降り）
                     setInterval(createHeart, 200);
                 }, 2500);
             }
         }
 
-        // ハートを生成する演出効果
         function createHeart() {
             const heart = document.createElement('div');
             heart.classList.add('falling-item', 'heart');
-            // ランダムでハートの種類を変えて可愛くする
             const heartTypes = ['💝', '💖', '💗', '❤️', '💕'];
             heart.innerText = heartTypes[Math.floor(Math.random() * heartTypes.length)];
             
             heart.style.left = Math.random() * 100 + 'vw';
-            // サイズも少しランダムに
             heart.style.fontSize = Math.random() * 15 + 20 + 'px';
             heart.style.animationDuration = Math.random() * 1.5 + 1.5 + 's';
             document.body.appendChild(heart);
