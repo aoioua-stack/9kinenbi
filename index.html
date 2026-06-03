@@ -95,7 +95,6 @@
             background-color: #ccc;
             border: 2px solid #ffb3c1;
             border-radius: 8px;
-            overflow: hidden;
             position: relative;
         }
 
@@ -105,14 +104,26 @@
             background-image: url('002.jpg');
             background-size: 280px 280px;
             cursor: grab;
-            touch-action: none; /* スマホでのスクロールを防止してドラッグしやすく */
+            touch-action: none;
             user-select: none;
             box-sizing: border-box;
             border: 1px dashed rgba(255,255,255,0.4);
+            transition: opacity 0.1s;
         }
 
-        .puzzle-piece:active {
-            cursor: grabbing;
+        /* スマホでドラッグ中の身代わり（クローン）のスタイル */
+        .puzzle-drag-proxy {
+            position: fixed;
+            width: 70px;
+            height: 70px;
+            background-image: url('002.jpg');
+            background-size: 280px 280px;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.85;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            transform: scale(1.1); /* 少し大きくして見やすく */
+            border-radius: 4px;
         }
 
         /* 共通演出用 */
@@ -242,11 +253,10 @@
         let mailInterval;
 
         function startMailGame() {
-            mailInterval = setInterval(createMail, 600); // 快適さのために少しだけ間隔を調整
+            mailInterval = setInterval(createMail, 600);
         }
 
         function createMail() {
-            // クリア条件（5個）に達していたら生成をストップ
             if (caughtMails >= 5) return;
 
             const mail = document.createElement('div');
@@ -255,13 +265,11 @@
             mail.style.left = Math.random() * 80 + 'vw';
             mail.style.animationDuration = Math.random() * 1.5 + 3.5 + 's'; 
 
-            // マウスとタッチの両方のイベントを登録
             mail.addEventListener('touchstart', catchMail, {passive: false});
             mail.addEventListener('mousedown', catchMail);
 
             document.body.appendChild(mail);
 
-            // 画面外に出たら削除
             setTimeout(() => { if(mail.parentNode) mail.remove(); }, 5000);
         }
 
@@ -291,7 +299,6 @@
                 setTimeout(() => miniHeart.remove(), 500);
             }, 10);
 
-            //的目标を5個に変更
             if (caughtMails >= 5) {
                 clearInterval(mailInterval);
                 document.querySelectorAll('.mail').forEach(m => m.remove());
@@ -305,11 +312,14 @@
         // --- パズルゲームの処理 ---
         let correctOrder = Array.from({length: 16}, (_, i) => i);
         let currentOrder = [];
+        
+        // スマホドラッグ演出用の変数
+        let dragProxy = null;
+        let activeTouchPiece = null;
 
         function initPuzzle() {
             currentOrder = [...correctOrder];
             
-            // 16ピースのスライドパズルが確実に解けるようにシャッフル
             for (let i = 0; i < 100; i++) {
                 let idx1 = Math.floor(Math.random() * 16);
                 let idx2 = Math.floor(Math.random() * 16);
@@ -335,14 +345,15 @@
                 let y = Math.floor(pieceId / 4) * 70;
                 piece.style.backgroundPosition = `-${x}px -${y}px`;
                 
-                // PC用ドラッグ＆ドロップ
+                // PC用
                 piece.setAttribute('draggable', 'true');
                 piece.addEventListener('dragstart', handleDragStart);
                 piece.addEventListener('dragover', handleDragOver);
                 piece.addEventListener('drop', handleDrop);
                 
-                // スマホ用タッチイベント（要素を直接触って入れ替えられるよう最適化）
+                // iPhone・スマホ用（新・追従演出対応）
                 piece.addEventListener('touchstart', handleTouchStart, {passive: false});
+                piece.addEventListener('touchmove', handleTouchMove, {passive: false});
                 piece.addEventListener('touchend', handleTouchEnd);
 
                 board.appendChild(piece);
@@ -362,15 +373,52 @@
             swapPieces(draggedPieceIndex, targetIndex);
         }
 
-        // スマホ用の処理（タッチ開始時の要素インデックスを保持）
+        // iPhone・スマホ用のドラッグ追従処理
         let touchStartIdx = null;
+        
         function handleTouchStart(e) {
+            e.preventDefault();
             touchStartIdx = this.dataset.index;
+            activeTouchPiece = this;
+            
+            // タッチした瞬間、元のピースを半透明にする
+            this.style.opacity = "0.3";
+            
+            // 指の下に表示する「浮き出るピース（身代わり）」を作成
+            dragProxy = document.createElement('div');
+            dragProxy.classList.add('puzzle-drag-proxy');
+            dragProxy.style.backgroundPosition = this.style.backgroundPosition;
+            
+            const touch = e.touches[0];
+            // 指の少し上に表示させて隠れないように位置調整（-35px）
+            dragProxy.style.left = (touch.clientX - 35) + 'px';
+            dragProxy.style.top = (touch.clientY - 45) + 'px';
+            
+            document.body.appendChild(dragProxy);
         }
+
+        function handleTouchMove(e) {
+            e.preventDefault();
+            if (!dragProxy) return;
+            
+            const touch = e.touches[0];
+            // 指の動きに合わせて身代わりピースを動かす
+            dragProxy.style.left = (touch.clientX - 35) + 'px';
+            dragProxy.style.top = (touch.clientY - 45) + 'px';
+        }
+
         function handleTouchEnd(e) {
+            if (activeTouchPiece) {
+                activeTouchPiece.style.opacity = "1"; // 透明度を戻す
+            }
+            if (dragProxy) {
+                dragProxy.remove(); // 身代わりピースを消去
+                dragProxy = null;
+            }
+
             const change = e.changedTouches[0];
-            // 指が離れた位置にある要素を取得
             const target = document.elementFromPoint(change.clientX, change.clientY);
+            
             if (target && target.classList.contains('puzzle-piece')) {
                 let touchEndIdx = target.dataset.index;
                 if (touchStartIdx !== null && touchEndIdx !== null) {
@@ -378,6 +426,7 @@
                 }
             }
             touchStartIdx = null;
+            activeTouchPiece = null;
         }
 
         function swapPieces(idx1, idx2) {
