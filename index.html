@@ -83,6 +83,14 @@
             margin-top: 5px;
         }
 
+        /* 保存ボタン用のスタイル */
+        .btn-save {
+            background-color: #ff758f;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(255, 117, 143, 0.3);
+            margin-top: 10px;
+        }
+
         /* --- パズルゲーム用スタイル --- */
         .puzzle-container {
             display: grid;
@@ -111,7 +119,6 @@
             transition: opacity 0.1s;
         }
 
-        /* スマホでドラッグ中の身代わり（クローン）のスタイル */
         .puzzle-drag-proxy {
             position: fixed;
             width: 70px;
@@ -122,7 +129,7 @@
             z-index: 9999;
             opacity: 0.85;
             box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-            transform: scale(1.1); /* 少し大きくして見やすく */
+            transform: scale(1.1);
             border-radius: 4px;
         }
 
@@ -179,7 +186,7 @@
 <body>
 
     <div id="stage1" class="card">
-        <h1>９ヶ月記念日ミニゲーム！！</h1>
+        <h1>記念日ミニゲーム❤</h1>
         <p>いつもありがとう！<br>用意したゲームをクリアしてお手紙を受け取ってね！</p>
         <button class="btn" onclick="nextStage(1, 2)">ゲームを始める！</button>
     </div>
@@ -229,7 +236,10 @@
             ９ヶ月間ありがとう！！！<br>だいすきだよ！！！<br>これからもずっとよろしくね！！
         </p>
         <p style="font-size: 2.5rem; margin: 5px 0;">💖</p>
+        
         <a href="001.HEIC" class="btn btn-letter">💌 お手紙を読む</a>
+        <br>
+        <a href="001.HEIC" download="お手紙.heic" target="_blank" class="btn btn-save">💾 お手紙を保存する</a>
     </div>
 
     <script>
@@ -244,7 +254,7 @@
                 nextStage(2, 3);
                 startMailGame();
             } else {
-                alert('あれー？もう一回考えてみてね！😘');
+                alert('あれれ？もう一回考えてみてね！😘');
             }
         }
 
@@ -313,7 +323,6 @@
         let correctOrder = Array.from({length: 16}, (_, i) => i);
         let currentOrder = [];
         
-        // スマホドラッグ演出用の変数
         let dragProxy = null;
         let activeTouchPiece = null;
 
@@ -351,7 +360,7 @@
                 piece.addEventListener('dragover', handleDragOver);
                 piece.addEventListener('drop', handleDrop);
                 
-                // iPhone・スマホ用（新・追従演出対応）
+                // iPhone・スマホ用
                 piece.addEventListener('touchstart', handleTouchStart, {passive: false});
                 piece.addEventListener('touchmove', handleTouchMove, {passive: false});
                 piece.addEventListener('touchend', handleTouchEnd);
@@ -373,7 +382,7 @@
             swapPieces(draggedPieceIndex, targetIndex);
         }
 
-        // iPhone・スマホ用のドラッグ追従処理
+        // iPhone・スマホ用のドラッグ処理
         let touchStartIdx = null;
         
         function handleTouchStart(e) {
@@ -381,16 +390,13 @@
             touchStartIdx = this.dataset.index;
             activeTouchPiece = this;
             
-            // タッチした瞬間、元のピースを半透明にする
             this.style.opacity = "0.3";
             
-            // 指の下に表示する「浮き出るピース（身代わり）」を作成
             dragProxy = document.createElement('div');
             dragProxy.classList.add('puzzle-drag-proxy');
             dragProxy.style.backgroundPosition = this.style.backgroundPosition;
             
             const touch = e.touches[0];
-            // 指の少し上に表示させて隠れないように位置調整（-35px）
             dragProxy.style.left = (touch.clientX - 35) + 'px';
             dragProxy.style.top = (touch.clientY - 45) + 'px';
             
@@ -402,17 +408,16 @@
             if (!dragProxy) return;
             
             const touch = e.touches[0];
-            // 指の動きに合わせて身代わりピースを動かす
             dragProxy.style.left = (touch.clientX - 35) + 'px';
             dragProxy.style.top = (touch.clientY - 45) + 'px';
         }
 
         function handleTouchEnd(e) {
             if (activeTouchPiece) {
-                activeTouchPiece.style.opacity = "1"; // 透明度を戻す
+                activeTouchPiece.style.opacity = "1";
             }
             if (dragProxy) {
-                dragProxy.remove(); // 身代わりピースを消去
+                dragProxy.remove();
                 dragProxy = null;
             }
 
