@@ -183,9 +183,9 @@
 
     <div id="stage3" class="card hidden">
         <h1>ミニゲーム2：郵便屋さん</h1>
-        <p>上から流れてくるラブレター（💌）を、画面をタップして【10個】キャッチしてね！</p>
+        <p>上から流れてくるラブレター（💌）を、画面をタップして【5個】キャッチしてね！</p>
         <p style="font-size: 1.2rem; font-weight: bold; color: #ff4d6d; margin: 10px 0;">
-            集めた数: <span id="mail-count">0</span> / 10 個
+            集めた数: <span id="mail-count">0</span> / 5 個
         </p>
     </div>
 
@@ -240,7 +240,7 @@
         }
 
         function createMail() {
-            if (caughtMails >= 10) return;
+            if (caughtMails >= 5) return;
 
             const mail = document.createElement('div');
             mail.classList.add('falling-item', 'mail');
@@ -398,7 +398,7 @@
             const isClear = currentOrder.every((val, i) => val === correctOrder[i]);
             if (isClear) {
                 setTimeout(() => {
-                    alert('パズル完成！すごーい！👏✨');
+                    alert('パズル完成！さすがゆづちゃん！！👏✨');
                     nextStage(4, 5); // 連打ゲームへ移動
                 }, 300);
             }
