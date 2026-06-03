@@ -236,29 +236,32 @@
         let mailInterval;
 
         function startMailGame() {
-            mailInterval = setInterval(createMail, 500);
+            mailInterval = setInterval(createMail, 600); // 快適さのために少しだけ間隔を調整
         }
 
         function createMail() {
+            // クリア条件（5個）に達していたら生成をストップ
             if (caughtMails >= 5) return;
 
             const mail = document.createElement('div');
             mail.classList.add('falling-item', 'mail');
             mail.innerText = '💌';
-            mail.style.left = Math.random() * 85 + 'vw';
-            mail.style.animationDuration = Math.random() * 1.5 + 4.5 + 's'; 
+            mail.style.left = Math.random() * 80 + 'vw';
+            mail.style.animationDuration = Math.random() * 1.5 + 3.5 + 's'; 
 
-            mail.addEventListener('touchstart', catchMail);
+            // マウスとタッチの両方のイベントを登録
+            mail.addEventListener('touchstart', catchMail, {passive: false});
             mail.addEventListener('mousedown', catchMail);
 
             document.body.appendChild(mail);
 
-            setTimeout(() => { mail.remove(); }, 6000);
+            // 画面外に出たら削除
+            setTimeout(() => { if(mail.parentNode) mail.remove(); }, 5000);
         }
 
         function catchMail(e) {
             e.preventDefault();
-            const mail = e.target;
+            const mail = e.currentTarget;
             mail.remove();
             
             caughtMails++;
@@ -282,26 +285,25 @@
                 setTimeout(() => miniHeart.remove(), 500);
             }, 10);
 
-            if (caughtMails >= 10) {
+            // 【修正】目標を5個に変更
+            if (caughtMails >= 5) {
                 clearInterval(mailInterval);
                 document.querySelectorAll('.mail').forEach(m => m.remove());
                 setTimeout(() => {
                     nextStage(3, 4);
-                    initPuzzle(); // パズルゲームを初期化してスタート
+                    initPuzzle(); 
                 }, 500);
             }
         }
 
-        // --- 新要素：16ピースパズルゲームの処理 ---
-        let pieces = [];
+        // --- パズルゲームの処理 ---
         let correctOrder = Array.from({length: 16}, (_, i) => i);
         let currentOrder = [];
 
         function initPuzzle() {
-            const board = document.getElementById('puzzle-board');
             currentOrder = [...correctOrder];
             
-            // 完全に解けるようにシャッフル（単純なランダムソートだと解けない場合があるため、スワップを繰り返す）
+            // 16ピースのスライドパズルが確実に解けるようにシャッフル
             for (let i = 0; i < 100; i++) {
                 let idx1 = Math.floor(Math.random() * 16);
                 let idx2 = Math.floor(Math.random() * 16);
@@ -323,29 +325,26 @@
                 piece.dataset.id = pieceId;
                 piece.dataset.index = index;
                 
-                // 画像の切り抜き位置を計算 (4x4)
                 let x = (pieceId % 4) * 70;
                 let y = Math.floor(pieceId / 4) * 70;
                 piece.style.backgroundPosition = `-${x}px -${y}px`;
                 
-                // ドラッグ開始イベント（PC・スマホ両対応）
+                // PC用ドラッグ＆ドロップ
                 piece.setAttribute('draggable', 'true');
                 piece.addEventListener('dragstart', handleDragStart);
                 piece.addEventListener('dragover', handleDragOver);
                 piece.addEventListener('drop', handleDrop);
                 
-                // スマホ用タッチイベントのシミュレーション
+                // スマホ用タッチイベント（要素を直接触って入れ替えられるよう最適化）
                 piece.addEventListener('touchstart', handleTouchStart, {passive: false});
-                piece.addEventListener('touchmove', handleTouchMove, {passive: false});
                 piece.addEventListener('touchend', handleTouchEnd);
 
                 board.appendChild(piece);
             });
         }
 
-        // ドラッグ＆ドロップ用変数（PC）
+        // PC用の処理
         let draggedPieceIndex = null;
-
         function handleDragStart(e) {
             draggedPieceIndex = this.dataset.index;
         }
@@ -357,21 +356,14 @@
             swapPieces(draggedPieceIndex, targetIndex);
         }
 
-        // タッチ操作用変数（スマホ）
+        // スマホ用の処理（タッチ開始時の要素インデックスを保持）
         let touchStartIdx = null;
-
         function handleTouchStart(e) {
-            const touch = e.touches[0];
-            const target = document.elementFromPoint(touch.clientX, touch.clientY);
-            if (target && target.classList.contains('puzzle-piece')) {
-                touchStartIdx = target.dataset.index;
-            }
-        }
-        function handleTouchMove(e) {
-            e.preventDefault(); // スクロール禁止
+            touchStartIdx = this.dataset.index;
         }
         function handleTouchEnd(e) {
             const change = e.changedTouches[0];
+            // 指が離れた位置にある要素を取得
             const target = document.elementFromPoint(change.clientX, change.clientY);
             if (target && target.classList.contains('puzzle-piece')) {
                 let touchEndIdx = target.dataset.index;
@@ -382,9 +374,8 @@
             touchStartIdx = null;
         }
 
-        // ピースを入れ替える共通処理
         function swapPieces(idx1, idx2) {
-            if (idx1 === idx2) return;
+            if (idx1 === idx2 || idx1 === null || idx2 === null) return;
             let temp = currentOrder[idx1];
             currentOrder[idx1] = currentOrder[idx2];
             currentOrder[idx2] = temp;
@@ -393,13 +384,12 @@
             checkPuzzleClear();
         }
 
-        // クリア判定
         function checkPuzzleClear() {
             const isClear = currentOrder.every((val, i) => val === correctOrder[i]);
             if (isClear) {
                 setTimeout(() => {
                     alert('パズル完成！さすがゆづちゃん！！👏✨');
-                    nextStage(4, 5); // 連打ゲームへ移動
+                    nextStage(4, 5); 
                 }, 300);
             }
         }
@@ -426,7 +416,7 @@
                 }
 
                 setTimeout(() => {
-                    nextStage(5, 6); // クリア画面のインデックスを6に変更
+                    nextStage(5, 6); 
                     setInterval(createHeart, 200);
                 }, 2500);
             }
