@@ -149,20 +149,20 @@
 
     <div id="stage1" class="card">
         <h1>記念日ミニゲーム❤</h1>
-        <p>いつもありがとう！<br>用意したゲームをクリアして、メッセージを受け取ってね！</p>
-        <button class="btn" onclick="nextStage(1, 2)">ゲームを始める！</button>
+        <p>いつもありがとう！<br>用意したゲームをクリアして、お手紙を受け取ってね！</p>
+        <button class="btn" onclick="nextStage(1, 2)">ミニゲームを始める！</button>
     </div>
 
     <div id="stage2" class="card hidden">
-        <h1>ミッション1：パスワード</h1>
-        <p>私たちの「記念日」を入力してね！<br><span style="font-size: 0.8rem; color: #888;">（例：○月○日）</span></p>
-        <input type="text" id="date-input" class="input-date" placeholder="例：8月31日">
+        <h1>ミニゲーム1：記念日パスワード</h1>
+        <p>ぼくたちの「記念日」を入力してね！<br><span style="font-size: 0.8rem; color: #888;">（例：○月○日）</span></p>
+        <input type="text" id="date-input" class="input-date" placeholder="例：⚪︎月△日">
         <br>
-        <button class="btn" onclick="checkPassword()">けっていする</button>
+        <button class="btn" onclick="checkPassword()">けってい！</button>
     </div>
 
     <div id="stage3" class="card hidden">
-        <h1>ミッション2：郵便屋さん</h1>
+        <h1>ミニゲーム2：郵便屋さん</h1>
         <p>上から流れてくるラブレター（💌）を、画面をタップして【10個】キャッチしてね！</p>
         <p style="font-size: 1.2rem; font-weight: bold; color: #ff4d6d; margin: 10px 0;">
             集めた数: <span id="mail-count">0</span> / 10 個
@@ -170,8 +170,8 @@
     </div>
 
     <div id="stage4" class="card hidden">
-        <h1>最終ミッション！</h1>
-        <p>ハートのメーターを満慢にして、ラブレターを開封しよう！</p>
+        <h1>最終ミニゲーム！</h1>
+        <p>ハートのメーターを満タンにして、ラブレターを開封しよう！</p>
         <p style="font-size: 0.8rem; color: #999;">（ボタンを10回タップしてね）</p>
         <div style="background: #eee; border-radius: 10px; height: 20px; width: 100%; margin: 15px 0; overflow: hidden;">
             <div id="bar" style="background: #ff4d6d; height: 100%; width: 0%; transition: width 0.2s;"></div>
@@ -180,10 +180,10 @@
     </div>
 
     <div id="stage5" class="card hidden">
-        <p class="clear-text">🎉 GAME CLEAR 🎉</p>
+        <p class="clear-text">🎉 ゲームクリア！！！ 🎉</p>
         <hr style="border: 1px dashed #ff4d6d; margin: 15px 0;">
         <p class="clear-text" style="font-size: 1.3rem; margin-bottom: 10px;">
-            ９ヶ月間ありがとう！！！<br>これからもずっとよろしくね！！
+            ９ヶ月間ありがとう！！！だいすきだよ！！！<br>これからもずっとよろしくね！！
         </p>
         <p style="font-size: 2.5rem; margin: 5px 0;">💖</p>
         
@@ -218,7 +218,7 @@
 
             const mail = document.createElement('div');
             mail.classList.add('falling-item', 'mail');
-            mail.innerText = '✉️';
+            mail.innerText = '💌';
             mail.style.left = Math.random() * 85 + 'vw';
             mail.style.animationDuration = Math.random() * 1.5 + 4.5 + 's'; 
 
